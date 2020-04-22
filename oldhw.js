@@ -70,76 +70,47 @@ const inquireQ = () => {
             {
                 type: "list",
                 message: "What would you like to do?",
-                choices: ["Build team", "Finish team"],
-                name: "moreTeam"
+                choices: ["Add Department", "View Department", "Add Roles", "View Roles", "Add Employees", "View Employees", "Update Employee Roles", "Update Employee Managers", "View Employees by Manager", "Delete Departments", "Delete Roles", "Delete Employees"],
+                name: "userFunction"
             }
         ]).then(res => {
-            const moreTeam = res.moreTeam;
+            const userFunction = res.userFunction;
             //switch case dependent on whether user picks build team or finish
-            switch (moreTeam) {
-                case "Build team":
-                    inquirer.prompt(questions)
-                        .then(response => {
-                            //adds three separate questions based on role response
-                            if (response.role === "Manager") {
-                                inquirer.prompt({
-                                    type: "input",
-                                    message: "What is the manager's office number?",
-                                    name: "officeNum",
-                                    validate: value => {
-                                        if (validator.isInt(value)) {
-                                            return true;
-                                        }
-                                        return "Please enter a valid office number.";
-                                    }
-                                }).then(managerOffice => {
-                                    let newManager = new Manager(response.fullName, response.id, response.email, managerOffice.officeNum);
-                                    team.push(newManager);
-                                    console.log(team);
-                                    inquireQ();
-                                })
-                            } else if (response.role === "Engineer") {
-                                inquirer.prompt({
-                                    type: "input",
-                                    message: "What is the engineer's github user name??",
-                                    name: "github",
-                                    validate: value => {
-                                        var regExp = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;
-                                        if (!regExp.test(value)) {
-                                            return "'Please enter a valid github username";
-                                        }
-                                        return true;
-                                    }
-                                }).then(engineerGH => {
-                                    let newEngineer = new Engineer(response.fullName, response.id, response.email, engineerGH.github);
-                                    team.push(newEngineer);
-                                    inquireQ();
-                                });
-                            } else if (response.role === "Intern") {
-                                inquirer.prompt({
-                                    type: "input",
-                                    message: "What school did this intern attend?",
-                                    name: "school"
-                                }).then(internSchool => {
-                                    let newIntern = new Intern(response.fullName, response.id, response.email, internSchool.school);
-                                    team.push(newIntern);
-                                    console.log(team);
-                                    inquireQ();
-                                });
-                            }
-                            //each role above pushes an object to array 'team'
-                        });
+            switch (userFunction) {
+                case "Add Department":
                     //end of first case
                     break;
-                case "Finish team":
-                    if (team.length > 0) {
-                        //calling the function to make html page with the info from render()
-                        writeHTML(render(team));
-                        console.log("All done!")
-                    } else {
-                        console.log("There's no Team Members!");
-                        inquireQ();
-                    }
+                case "View Department":
+                    break;
+
+                case "Add Roles":
+                    break;
+
+                case "View Roles":
+                    break;
+
+                case "Add Employees":
+                    break;
+
+                case "View Employees":
+                    break;
+
+                case "Update Employee Roles":
+                    break;
+
+                case "Update Employee Managers":
+                    break;
+
+                case "View Employees by Manager":
+                    break;
+
+                case "Delete Departments":
+                    break;
+
+                case "Delete Roles":
+                    break;
+
+                case "Delete Employees":
                     break;
 
                 default:
@@ -159,3 +130,63 @@ const writeHTML = HTML => {
 }
 //calling the inquire function
 inquireQ();
+
+// inquirer.prompt(questions)
+//     .then(response => {
+//         //adds three separate questions based on role response
+//         if (response.role === "Manager") {
+//             inquirer.prompt({
+//                 type: "input",
+//                 message: "What is the manager's office number?",
+//                 name: "officeNum",
+//                 validate: value => {
+//                     if (validator.isInt(value)) {
+//                         return true;
+//                     }
+//                     return "Please enter a valid office number.";
+//                 }
+//             }).then(managerOffice => {
+//                 let newManager = new Manager(response.fullName, response.id, response.email, managerOffice.officeNum);
+//                 team.push(newManager);
+//                 console.log(team);
+//                 inquireQ();
+//             })
+//         } else if (response.role === "Engineer") {
+//             inquirer.prompt({
+//                 type: "input",
+//                 message: "What is the engineer's github user name??",
+//                 name: "github",
+//                 validate: value => {
+//                     var regExp = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;
+//                     if (!regExp.test(value)) {
+//                         return "'Please enter a valid github username";
+//                     }
+//                     return true;
+//                 }
+//             }).then(engineerGH => {
+//                 let newEngineer = new Engineer(response.fullName, response.id, response.email, engineerGH.github);
+//                 team.push(newEngineer);
+//                 inquireQ();
+//             });
+//         } else if (response.role === "Intern") {
+//             inquirer.prompt({
+//                 type: "input",
+//                 message: "What school did this intern attend?",
+//                 name: "school"
+//             }).then(internSchool => {
+//                 let newIntern = new Intern(response.fullName, response.id, response.email, internSchool.school);
+//                 team.push(newIntern);
+//                 console.log(team);
+//                 inquireQ();
+//             });
+//         }
+//         //each role above pushes an object to array 'team'
+//     });if (team.length > 0) {
+//calling the function to make html page with the info from render()
+// writeHTML(render(team));
+// console.log("All done!")
+// }
+// else {
+//     console.log("There's no Team Members!");
+//     inquireQ();
+// }
