@@ -1,0 +1,23 @@
+{
+  "name": "track-your-employees",
+  "version": "1.0.0",
+  "description": "tracking employees in a company.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sammiefrog/track-your-employees.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sammiefrog/track-your-employees/issues"
+  },
+  "homepage": "https://github.com/sammiefrog/track-your-employees#readme",
+  "dependencies": {
+    "mysql": "^2.18.1"
+  }
+}
