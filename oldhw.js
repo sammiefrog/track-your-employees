@@ -75,11 +75,11 @@ const inquireQ = () => {
             }
         ]).then(res => {
             const userFunction = res.userFunction;
-            //switch case dependent on whether user picks build team or finish
+            //switch case for all options
             switch (userFunction) {
                 case "Add Department":
-                    //end of first case
                     break;
+
                 case "View Department":
                     break;
 
