@@ -13,10 +13,10 @@ CREATE TABLE role (
   id INT(30) NOT NULL PRIMARY KEY AUTO_INCREMENT,
   title VARCHAR(45) NOT NULL,
   salary  DECIMAL NOT NULL,
-  department_Id INT(30) NOT NULL,
+  department_id INT(30) NOT NULL,
 );
 
-CREATE TABLE  employee(
+CREATE TABLE  employee (
   id INT(30) NOT NULL PRIMARY KEY AUTO_INCREMENT,
   first_name VARCHAR(30) NOT NULL,
   last_name VARCHAR(30) NOT NULL,
@@ -25,11 +25,14 @@ CREATE TABLE  employee(
 );
 
 
--- INSERT INTO songs (title, artist, genre)
--- VALUES ("Best of Me", "The Starting Line", "Pop Punk");
+INSERT INTO department (name)
+VALUES ("Finance");
 
--- INSERT INTO songs (title, artist, genre)
--- VALUES ("Can We Talk", "Tevin Campbell", "R&B");
+INSERT INTO roles (title, salary, department_id)
+VALUES ("Manager", 30000.00, 1);
 
--- INSERT INTO songs (title, artist, genre)
--- VALUES ("Southern Hospitality", "Ludacris", "Hip-Hop");
+INSERT INTO employee (first_name, last_name, role_id, manager_id)
+VALUES ("Janet", "Smith", 1, null);
+
+INSERT INTO employee (first_name, last_name, role_id, manager_id)
+VALUES ("Bob", "Barker", 1, 1);

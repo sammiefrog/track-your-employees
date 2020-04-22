@@ -18,6 +18,8 @@
   },
   "homepage": "https://github.com/sammiefrog/track-your-employees#readme",
   "dependencies": {
+    "cfonts": "^2.8.1",
+    "dotenv": "^8.2.0",
     "inquirer": "^7.1.0",
     "mysql": "^2.18.1",
     "validator": "^13.0.0"
