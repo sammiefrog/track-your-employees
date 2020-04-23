@@ -67,7 +67,7 @@ const addEmp = [
         return true;
       }
       return "Please enter valid first name (a-z)";
-    },
+    }
   },
   {
     type: "input",
@@ -78,7 +78,7 @@ const addEmp = [
         return true;
       }
       return "Please enter valid last name (a-z)";
-    },
+    }
   },
   {
     type: "input",
@@ -89,7 +89,7 @@ const addEmp = [
         return true;
       }
       return "Please enter valid role id (#)";
-    },
+    }
   },
   {
     type: "input",
@@ -100,7 +100,7 @@ const addEmp = [
         return true;
       }
       return "Please enter valid manager's id (#)";
-    },
+    }
   }
 ];
 
@@ -199,13 +199,13 @@ const inquireQ = () => {
 
             case "Add Employee":
                 //view employees before you add one.
-                connection.query("SELECT * FROM departments", function (
+                connection.query("SELECT * FROM roles", function (
                     err,
                     res
                 ) {
                     if (err) throw err;
                     res.length > 0 && console.table(res);
-                    connection.query("SELECT * FROM roles", function (
+                    connection.query("SELECT * FROM employees", function (
                         err,
                         res
                     ) {
@@ -243,7 +243,37 @@ const inquireQ = () => {
             });
             break;
 
-          case "Update Employee Roles":
+            case "Update Employee roles":
+                connection.query("SELECT * FROM employees", function (
+                  err,
+                  res
+                ) {
+                  if (err) throw err;
+                  console.log(res);
+                    res.length > 0 && console.table(res);
+                    ask.prompt({
+                        type: "input",
+                        message: "Please enter the employee's id you wish to update:",
+                        name: "updateID"
+                    }, {
+                        type: "input",
+                            message: "Please enter their new role:",
+                        name: "updateRole"
+                    }).then(answer => {
+                        connection.query("UPDATE employees SET ? WHERE ?", [{
+                            role: answer.updateRole
+                        },
+                        {
+                            id: answer.updateID
+                            }],
+                            function (err, res) {
+                                if (err) throw err;
+                                console.log("Employee has been updated!");
+                            inquireQ();
+
+                        });
+                    })
+                });
             break;
 
           case "Update Employee Managers":
@@ -252,13 +282,107 @@ const inquireQ = () => {
           case "View Employees by Manager":
             break;
 
-          case "Delete Department":
+            case "Delete Department":
+                connection.query("SELECT * FROM departments ", function (
+                  err,
+                  res
+                ) {
+                  if (err) throw err;
+                  res.length > 0 && console.table(res);
+                  ask
+                    .prompt([
+                      {
+                        type: "input",
+                        message: "Please enter the department id you wish to delete:",
+                        name: "deleteDept",
+                      },
+                    ])
+                    .then((answer) => {
+                      connection.query(
+                        "DELETE FROM departments WHERE id=? ",
+                        [answer.deleteDept],
+                        function (err, res) {
+                          if (err) throw err;
+                          connection.query(
+                            "SELECT * FROM departments",
+                            function (err, res) {
+                              if (err) throw err;
+                              res.length > 0 && console.table(res);
+                              inquireQ();
+                            }
+                          );
+                        }
+                      );
+                    });
+                });
             break;
 
-          case "Delete Role":
+            case "Delete Role":
+                connection.query("SELECT * FROM roles ", function (
+                  err,
+                  res
+                ) {
+                  if (err) throw err;
+                  res.length > 0 && console.table(res);
+                  ask
+                    .prompt([
+                      {
+                        type: "input",
+                        message:
+                          "Please enter the role id you wish to delete:",
+                        name: "deleteRole",
+                      },
+                    ])
+                    .then((answer) => {
+                      connection.query(
+                        "DELETE FROM roles WHERE id=? ",
+                        [answer.deleteRole],
+                        function (err, res) {
+                          if (err) throw err;
+                          connection.query(
+                            "SELECT * FROM roles",
+                            function (err, res) {
+                              if (err) throw err;
+                              res.length > 0 && console.table(res);
+                              inquireQ();
+                            }
+                          );
+                        }
+                      );
+                    });
+                });
             break;
 
-          case "Delete Employee":
+            case "Delete Employee":
+                connection.query("SELECT * FROM employees ", function (err, res) {
+                  if (err) throw err;
+                  res.length > 0 && console.table(res);
+                  ask
+                    .prompt([
+                      {
+                        type: "input",
+                        message: "Please enter the role id you wish to delete:",
+                        name: "deleteEmp",
+                      },
+                    ])
+                    .then((answer) => {
+                      connection.query(
+                        "DELETE FROM employees WHERE id=? ",
+                        [answer.deleteEmp],
+                        function (err, res) {
+                          if (err) throw err;
+                          connection.query("SELECT * FROM employees", function (
+                            err,
+                            res
+                          ) {
+                            if (err) throw err;
+                            res.length > 0 && console.table(res);
+                            inquireQ();
+                          });
+                        }
+                      );
+                    });
+                });
             break;
 
           case "Finish":
