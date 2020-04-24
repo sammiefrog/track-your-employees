@@ -254,12 +254,24 @@ const inquireQ = () => {
                     {
                         type: "input",
                         message: "Please enter the employee's id you wish to update:",
-                        name: "updateID"
+                        name: "updateID",
+                        validate: (value) => {
+                          if (validator.isInt(value)) {
+                            return true;
+                          }
+                          return "Please enter valid employee id (#)";
+                        }
                     },
                     {
                         type: "input",
                         message: "Please enter their new role id:",
-                        name: "updateRoleID"
+                      name: "updateRoleID",
+                      validate: (value) => {
+                        if (validator.isInt(value)) {
+                          return true;
+                        }
+                        return "Please enter valid new role id (#)";
+                      }
                     }
                     ]).then(answer => {
                         connection.query("UPDATE employees SET ? WHERE ?", [{
@@ -287,12 +299,24 @@ const inquireQ = () => {
                 {
                   type: "input",
                   message: "Please enter the employee ID who's manager you'd like to change:",
-                  name: "updateMngr"
+                  name: "updateMngr",
+                  validate: (value) => {
+                    if (validator.isInt(value)) {
+                      return true;
+                    }
+                    return "Please enter valid employee id (#)";
+                  }
                 },
                 {
                   type: "input",
                   message: "Please enter their new managers ID:",
-                  name: "updateMngrID"
+                  name: "updateMngrID",
+                  validate: (value) => {
+                    if (validator.isInt(value)) {
+                      return true;
+                    }
+                    return "Please enter valid manager id (#)";
+                  }
                 }
               ]).then(answer => {
                 connection.query("UPDATE employees SET ? WHERE ?", [{
@@ -314,7 +338,13 @@ const inquireQ = () => {
               {
                 type: "input",
                 message: "Please enter the manager id for the employees you wish to view:",
-                name: "viewMngrsEmps"
+                name: "viewMngrsEmps",
+                validate: (value) => {
+                  if (validator.isInt(value)) {
+                    return true;
+                  }
+                  return "Please enter valid manager id (#)";
+                }
               }
             ).then(answer => {
               connection.query("SELECT * FROM employees WHERE ?", [{
@@ -341,6 +371,12 @@ const inquireQ = () => {
                         type: "input",
                         message: "Please enter the department id you wish to delete:",
                         name: "deleteDept",
+                        validate: (value) => {
+                          if (validator.isInt(value)) {
+                            return true;
+                          }
+                          return "Please enter valid department id (#)";
+                        }
                       },
                     ])
                     .then((answer) => {
@@ -377,6 +413,12 @@ const inquireQ = () => {
                         message:
                           "Please enter the role id you wish to delete:",
                         name: "deleteRole",
+                        validate: (value) => {
+                          if (validator.isInt(value)) {
+                            return true;
+                          }
+                          return "Please enter valid role id (#)";
+                        }
                       },
                     ])
                     .then((answer) => {
@@ -409,6 +451,12 @@ const inquireQ = () => {
                         type: "input",
                         message: "Please enter the role id you wish to delete:",
                         name: "deleteEmp",
+                        validate: (value) => {
+                          if (validator.isInt(value)) {
+                            return true;
+                          }
+                          return "Please enter valid employee id (#)";
+                        }
                       },
                     ])
                     .then((answer) => {
