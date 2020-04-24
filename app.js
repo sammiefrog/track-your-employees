@@ -23,39 +23,35 @@ const addDept = [{
     }
 }];
 
-const addRole = [{
-    type: "input",
-    message: "Please enter the role you wish to add:",
-    name: "title",
-    validate: value => {
-        if (validator.isAlpha(value)) {
-            return true;
-        }
-        return "Please enter valid role (a-z)";
-    }
-},
-{
-    type: "input",
-    massage: "Please enter the salary for this role:",
-    name: "salary",
-    validate: value => {
-        if (validator.isInt(value)) {
-            return true;
-        }
-        return "Please enter a valid salary ex:(3000.00)";
-    }
-},
-{
-    type: "input",
-    massage: "Please enter the department ID for this role:",
-    name: "department_id",
-    validate: value => {
-        if (validator.isInt(value)) {
-            return true;
-        }
-        return "Please enter a valid department ID (number)";
-    }
-}];
+// const addRole = [{
+//     type: "input",
+//     message: "Please enter the role you wish to add:",
+//     name: "title",
+//     validate: value => {
+//         if (validator.isAlpha(value)) {
+//             return true;
+//         }
+//         return "Please enter valid role (a-z)";
+//     }
+// },
+// {
+//     type: "input",
+//     massage: "Please enter the salary for this role:",
+//     name: "salary",
+//     validate: value => {
+//         if (validator.isInt(value)) {
+//             return true;
+//         }
+//         return "Please enter a valid salary ex:(3000.00)";
+//     }
+// },
+// {
+//   type: "list",
+//   massage: "Please select the department for this role:",
+//   choices: departments.map(department => ({ value: department.id, name: department.name })),
+//   name: "department_id",
+ 
+// }];
 
 const addEmp = [
   {
@@ -164,14 +160,38 @@ const inquireQ = () => {
               res.length > 0 && console.table(res);
               inquireQ();
             });
-            break;
+          break;
 
           case "Add Role":
                   //view the roles
-                  connection.query("SELECT * FROM departments", function (err, res) {
+                  connection.query("SELECT * FROM departments", function (err, departments) {
                     if (err) throw err;
-                      res.length > 0 && console.table(res);
-                      ask.prompt(addRole).then((answer) => {
+                      // res.length > 0 && console.table(departments);
+                    ask.prompt([
+                      {
+                      type: "input",
+                      message: "Please enter the role you wish to add:",
+                      name: "title"
+                      
+                    },
+                    {
+                      type: "input",
+                      massage: "Please enter the salary for this role:",
+                      name: "salary",
+                      validate: value => {
+                        if (validator.isInt(value)) {
+                          return true;
+                        }
+                        return "Please enter a valid salary ex:(3000.00)";
+                      }
+                    },
+                    {
+                      type: "list",
+                      massage: "Please select the department for this role:",
+                      choices: departments.map(department => ({ value: department.id, name: department.name })),
+                      name: "department_id",
+
+                    }]).then((answer) => {
                         connection.query(
                           "INSERT INTO roles SET ?",
                           {
@@ -219,7 +239,7 @@ const inquireQ = () => {
                                     first_name: answer.first_name,
                                     last_name: answer.last_name,
                                     role_id: answer.role_id,
-                                    manager_id: answer.manager_id,
+                                    manager_id: answer.manager_id
                                 },
                                 function (err) {
                                     if (err) throw err;
@@ -244,48 +264,46 @@ const inquireQ = () => {
             break;
 
             case "Update Employee Roles":
-                connection.query("SELECT * FROM employees", function (
-                  err,
-                  res
-                ) {
-                  if (err) throw err;
-                    res.length > 0 && console.table(res);
-                    ask.prompt([
-                    {
-                        type: "input",
-                        message: "Please enter the employee's id you wish to update:",
-                        name: "updateID",
-                        validate: (value) => {
-                          if (validator.isInt(value)) {
-                            return true;
-                          }
-                          return "Please enter valid employee id (#)";
-                        }
-                    },
-                    {
-                        type: "input",
-                        message: "Please enter their new role id:",
-                      name: "updateRoleID",
-                      validate: (value) => {
-                        if (validator.isInt(value)) {
-                          return true;
-                        }
-                        return "Please enter valid new role id (#)";
-                      }
-                    }
-                    ]).then(answer => {
-                        connection.query("UPDATE employees SET ? WHERE ?", [{
-                            role_id: answer.updateRoleID
-                        },
-                        {
-                            id: answer.updateID
-                        }], function (err, res) {
-                                if (err) throw err;
-                                console.log("Employee has been updated!");
-                            inquireQ();
-                        });
-                    })
-                });
+            connection.query("SELECT * FROM employees", function (
+              err,
+              employees
+            ) {
+              if (err) throw err;
+              // res.length > 0 && console.table(res);
+              connection.query("SELECT * FROM roles", function (
+                err,
+                roles
+              ) {
+                if (err) throw err;
+                ask.prompt([
+                  {
+                    type: "list",
+                    message: "Please select the employee you wish to update:",
+                    choices: employees.map(employee => ({ value: employee.id, name: employee.last_name })),
+                    name: "updateID"
+
+                  },
+                  {
+                    type: "list",
+                    message: "Please enter their new role id:",
+                    choices: roles.map(role => ({ value: role.id, name: role.title })),
+                    name: "updateRoleID",
+                      
+                  }
+                ]).then(answer => {
+                  connection.query("UPDATE employees SET ? WHERE ?", [{
+                    role_id: answer.updateRoleID
+                  },
+                  {
+                    id: answer.updateID
+                  }], function (err, res) {
+                    if (err) throw err;
+                    console.log("Employee has been updated!");
+                    inquireQ();
+                  });
+                })
+              });
+            });
             break;
 
           case "Update Employee Managers":
@@ -334,17 +352,15 @@ const inquireQ = () => {
             break;
 
           case "View Employees by Manager":
+            connection.query("SELECT * FROM employees WHERE ?", {
+
+            })
             ask.prompt(
               {
-                type: "input",
-                message: "Please enter the manager id for the employees you wish to view:",
+                type: "list",
+                message: "Please select the manager of whom you wish to view their employees:",
+                choices: employees.map(employee => ({ value: employee.id, name: employee.last_name })),
                 name: "viewMngrsEmps",
-                validate: (value) => {
-                  if (validator.isInt(value)) {
-                    return true;
-                  }
-                  return "Please enter valid manager id (#)";
-                }
               }
             ).then(answer => {
               connection.query("SELECT * FROM employees WHERE ?", [{
@@ -402,23 +418,17 @@ const inquireQ = () => {
             case "Delete Role":
                 connection.query("SELECT * FROM roles ", function (
                   err,
-                  res
+                  roles
                 ) {
                   if (err) throw err;
-                  res.length > 0 && console.table(res);
+                  // res.length > 0 && console.table(res);
                   ask
                     .prompt([
                       {
-                        type: "input",
-                        message:
-                          "Please enter the role id you wish to delete:",
-                        name: "deleteRole",
-                        validate: (value) => {
-                          if (validator.isInt(value)) {
-                            return true;
-                          }
-                          return "Please enter valid role id (#)";
-                        }
+                        type: "list",
+                        message: "Please select the role you wish to delete:",
+                        choices: roles.map(role => ({ value: role.id, name: role.title })),
+                        name: "deleteRole"
                       },
                     ])
                     .then((answer) => {
@@ -480,6 +490,7 @@ const inquireQ = () => {
             break;
 
           case "Finish":
+            connection.end();
             break;
 
           default:
@@ -488,6 +499,9 @@ const inquireQ = () => {
         }
       });
 }
+//use map to create employees, etc
+//join is for view departments budgets 
+//join department, department id inner join
 
 
 
