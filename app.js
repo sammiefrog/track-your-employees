@@ -243,34 +243,34 @@ const inquireQ = () => {
             });
             break;
 
-            case "Update Employee roles":
+            case "Update Employee Roles":
                 connection.query("SELECT * FROM employees", function (
                   err,
                   res
                 ) {
                   if (err) throw err;
-                  console.log(res);
                     res.length > 0 && console.table(res);
-                    ask.prompt({
+                    ask.prompt([
+                    {
                         type: "input",
                         message: "Please enter the employee's id you wish to update:",
                         name: "updateID"
-                    }, {
+                    },
+                    {
                         type: "input",
-                            message: "Please enter their new role:",
-                        name: "updateRole"
-                    }).then(answer => {
+                        message: "Please enter their new role id:",
+                        name: "updateRoleID"
+                    }
+                    ]).then(answer => {
                         connection.query("UPDATE employees SET ? WHERE ?", [{
-                            role: answer.updateRole
+                            role_id: answer.updateRoleID
                         },
                         {
                             id: answer.updateID
-                            }],
-                            function (err, res) {
+                        }], function (err, res) {
                                 if (err) throw err;
                                 console.log("Employee has been updated!");
                             inquireQ();
-
                         });
                     })
                 });
