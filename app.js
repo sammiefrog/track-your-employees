@@ -277,9 +277,55 @@ const inquireQ = () => {
             break;
 
           case "Update Employee Managers":
+            connection.query("SELECT * FROM employees", function (
+              err,
+              res
+            ) {
+              if (err) throw err;
+              res.length > 0 && console.table(res);
+              ask.prompt([
+                {
+                  type: "input",
+                  message: "Please enter the employee ID who's manager you'd like to change:",
+                  name: "updateMngr"
+                },
+                {
+                  type: "input",
+                  message: "Please enter their new managers ID:",
+                  name: "updateMngrID"
+                }
+              ]).then(answer => {
+                connection.query("UPDATE employees SET ? WHERE ?", [{
+                  manager_id: answer.updateMngrID
+                },
+                {
+                  id: answer.updateMngr
+                }], function (err, res) {
+                  if (err) throw err;
+                  console.log("Employee's manager has been updated!");
+                  inquireQ();
+                });
+              })
+            });
             break;
 
           case "View Employees by Manager":
+            ask.prompt(
+              {
+                type: "input",
+                message: "Please enter the manager id for the employees you wish to view:",
+                name: "viewMngrsEmps"
+              }
+            ).then(answer => {
+              connection.query("SELECT * FROM employees WHERE ?", [{
+                manager_id: answer.viewMngrsEmps
+              }], function (err, res) {
+                  if (err) throw err;
+                  console.table(res);
+                console.log("Employee's manager has been updated!");
+                inquireQ();
+              });
+            });
             break;
 
             case "Delete Department":
