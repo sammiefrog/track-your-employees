@@ -11,80 +11,6 @@ connection.connect(function (err) {
     inquireQ();
 });
 
-
-// const addRole = [{
-//     type: "input",
-//     message: "Please enter the role you wish to add:",
-//     name: "title",
-//     validate: value => {
-//         if (validator.isAlpha(value)) {
-//             return true;
-//         }
-//         return "Please enter valid role (a-z)";
-//     }
-// },
-// {
-//     type: "input",
-//     massage: "Please enter the salary for this role:",
-//     name: "salary",
-//     validate: value => {
-//         if (validator.isInt(value)) {
-//             return true;
-//         }
-//         return "Please enter a valid salary ex:(3000.00)";
-//     }
-// },
-// {
-//   type: "list",
-//   massage: "Please select the department for this role:",
-//   choices: departments.map(department => ({ value: department.id, name: department.name })),
-//   name: "department_id",
- 
-// }];
-
-// const addEmp = [
-//   {
-//     type: "input",
-//     message: "Please enter employee's first name:",
-//     name: "first_name",
-//     validate: (value) => {
-//       if (validator.isAlpha(value)) {
-//         return true;
-//       }
-//       return "Please enter valid first name (a-z)";
-//     }
-//   },
-//   {
-//     type: "input",
-//     message: "Please enter employee's last name:",
-//     name: "last_name",
-//     validate: (value) => {
-//       if (validator.isAlpha(value)) {
-//         return true;
-//       }
-//       return "Please enter valid last name (a-z)";
-//     }
-//   },
-//   {
-//     type: "input",
-//     message: "Please select employee's role:",
-//     choices: roles.map(role => ({ value: role.id, name: role.title })),
-//     name: "role_id",
-//   },
-//   {
-//     type: "input",
-//     message: "Please enter the manager id for this employee:",
-//     // choices: employees.map(employee => ({ value: employee.id, name: employee.last_name })),
-//     name: "manager_id",
-//     validate: (value) => {
-//       if (validator.isInt(value)) {
-//         return true;
-//       }
-//       return "Please enter valid manager's id (#)";
-//     }
-//   }
-// ];
-
 const inquireQ = () => {
     ask
       .prompt([
@@ -470,22 +396,16 @@ const inquireQ = () => {
             break;
 
             case "Delete Employee":
-                connection.query("SELECT * FROM employees ", function (err, res) {
+                connection.query("SELECT * FROM employees ", function (err, employees) {
                   if (err) throw err;
-                  res.length > 0 && console.table(res);
                   ask
                     .prompt([
                       {
                         type: "input",
-                        message: "Please enter the role id you wish to delete:",
-                        name: "deleteEmp",
-                        validate: (value) => {
-                          if (validator.isInt(value)) {
-                            return true;
-                          }
-                          return "Please enter valid employee id (#)";
-                        }
-                      },
+                        message: "Please select the employee you wish to delete:",
+                        choices: employees.map(employee => ({ value: employee.id, name: employee.last_name })),
+                        name: "deleteEmp"
+                      }
                     ])
                     .then((answer) => {
                       connection.query(
