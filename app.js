@@ -4,6 +4,7 @@ const cfonts = require('cfonts');
 const path = require("path");
 const fs = require("fs");
 const connection = require('./connect');
+const { printTable } = require("console-table-printer");
 
 connection.connect(function (err) {
     if (err) throw err;
@@ -72,7 +73,7 @@ const inquireQ = () => {
             connection.query("SELECT * FROM departments", function (err, res) {
               if (err) throw err;
               console.log(res);
-              res.length > 0 && console.table(res);
+              res.length > 0 && printTable(res);
               inquireQ();
             });
           break;
@@ -85,7 +86,7 @@ const inquireQ = () => {
                     ask.prompt([
                     {
                       type: "input",
-                      message: "Please select the role you wish to add:",
+                      message: "Please enter the role you wish to add:",
                       name: "title"
                       
                     },
@@ -97,7 +98,7 @@ const inquireQ = () => {
                         if (validator.isInt(value)) {
                           return true;
                         }
-                        return "Please enter a valid salary ex:(3000.00)";
+                        return "Please enter a valid salary ex:(30000)";
                       }
                     },
                     {
@@ -127,7 +128,7 @@ const inquireQ = () => {
           case "View Roles":
             connection.query("SELECT * FROM roles", function (err, res) {
               if (err) throw err;
-              res.length > 0 && console.table(res);
+              res.length > 0 && printTable(res);
               inquireQ();
             });
             break;
@@ -139,13 +140,11 @@ const inquireQ = () => {
                     roles
                 ) {
                     if (err) throw err;
-                    res.length > 0 && console.table(res);
                     connection.query("SELECT * FROM employees", function (
                         err,
                         employees
                     ) {
                         if (err) throw err;
-                        res.length > 0 && console.table(res);
                         //ask the questions to add after displaying current ones
                       ask.prompt([
                         {
@@ -193,7 +192,8 @@ const inquireQ = () => {
                                 },
                                 function (err) {
                                     if (err) throw err;
-                                    console.log("Successfully added employee!");
+                                  console.log("Successfully added employee!");
+                                  printTable(res);
                                     //view the roles
                                     inquireQ();
                                 }
@@ -208,7 +208,7 @@ const inquireQ = () => {
             connection.query("SELECT * FROM employees", function (err, res) {
               if (err) throw err;
               console.log(res);
-              res.length > 0 && console.table(res);
+              res.length > 0 && printTable(res);
               inquireQ();
             });
             break;
@@ -219,7 +219,6 @@ const inquireQ = () => {
               employees
             ) {
               if (err) throw err;
-              // res.length > 0 && console.table(res);
               connection.query("SELECT * FROM roles", function (
                 err,
                 roles
@@ -248,8 +247,8 @@ const inquireQ = () => {
                     id: answer.updateID
                   }], function (err, res) {
                     if (err) throw err;
-                    console.log("Employee has been updated!");
-                    inquireQ();
+                      printTable(res);
+                      inquireQ();
                   });
                 })
               });
@@ -259,45 +258,48 @@ const inquireQ = () => {
           case "Update Employee Managers":
             connection.query("SELECT * FROM employees", function (
               err,
-              res
+              employees
             ) {
               if (err) throw err;
-              res.length > 0 && console.table(res);
-              ask.prompt([
-                {
-                  type: "input",
-                  message: "Please enter the employee ID who's manager you'd like to change:",
-                  name: "updateMngr",
-                  validate: (value) => {
-                    if (validator.isInt(value)) {
-                      return true;
+              res.length > 0 && printTable(res);
+              ask
+                .prompt([
+                  {
+                    type: "input",
+                    message: "Please select the employee who's manager you'd like to change:",
+                    choices: employees.map(employee => ({value: employee.id, name: employee.last_name})),
+                    name: "updateMngr"
+                  },
+                  {
+                    type: "input",
+                    message: "Please enter their new managers ID:",
+                    name: "updateMngrID",
+                    validate: (value) => {
+                      if (validator.isInt(value)) {
+                        return true;
+                      }
+                      return "Please enter valid manager id (#)";
+                    },
+                  },
+                ])
+                .then((answer) => {
+                  connection.query(
+                    "UPDATE employees SET ? WHERE ?",
+                    [
+                      {
+                        manager_id: answer.updateMngrID,
+                      },
+                      {
+                        id: answer.updateMngr,
+                      },
+                    ],
+                    function (err, res) {
+                      if (err) throw err;
+                      console.log("Employee's manager has been updated!");
+                      inquireQ();
                     }
-                    return "Please enter valid employee id (#)";
-                  }
-                },
-                {
-                  type: "input",
-                  message: "Please enter their new managers ID:",
-                  name: "updateMngrID",
-                  validate: (value) => {
-                    if (validator.isInt(value)) {
-                      return true;
-                    }
-                    return "Please enter valid manager id (#)";
-                  }
-                }
-              ]).then(answer => {
-                connection.query("UPDATE employees SET ? WHERE ?", [{
-                  manager_id: answer.updateMngrID
-                },
-                {
-                  id: answer.updateMngr
-                }], function (err, res) {
-                  if (err) throw err;
-                  console.log("Employee's manager has been updated!");
-                  inquireQ();
+                  );
                 });
-              })
             });
             break;
 
@@ -317,7 +319,7 @@ const inquireQ = () => {
                 manager_id: answer.viewMngrsEmps
               }], function (err, res) {
                   if (err) throw err;
-                  console.table(res);
+                  printTable(res);
                 console.log("Employee's manager has been updated!");
                 inquireQ();
               });
@@ -327,15 +329,15 @@ const inquireQ = () => {
             case "Delete Department":
                 connection.query("SELECT * FROM departments ", function (
                   err,
-                  res
+                  departments
                 ) {
                   if (err) throw err;
-                  res.length > 0 && console.table(res);
                   ask
                     .prompt([
                       {
                         type: "input",
-                        message: "Please enter the department id you wish to delete:",
+                        message: "Please select the department you wish to delete:",
+                        choices: departments.map(department => ({ value: department.id, name: department.name })),
                         name: "deleteDept"
                       },
                     ])
@@ -349,7 +351,7 @@ const inquireQ = () => {
                             "SELECT * FROM departments",
                             function (err, res) {
                               if (err) throw err;
-                              res.length > 0 && console.table(res);
+                              printTable(res);
                               inquireQ();
                             }
                           );
@@ -365,7 +367,6 @@ const inquireQ = () => {
                   roles
                 ) {
                   if (err) throw err;
-                  // res.length > 0 && console.table(res);
                   ask
                     .prompt([
                       {
@@ -385,7 +386,7 @@ const inquireQ = () => {
                             "SELECT * FROM roles",
                             function (err, res) {
                               if (err) throw err;
-                              res.length > 0 && console.table(res);
+                              printTable(res);
                               inquireQ();
                             }
                           );
@@ -418,7 +419,7 @@ const inquireQ = () => {
                             res
                           ) {
                             if (err) throw err;
-                            res.length > 0 && console.table(res);
+                            printTable(res);
                             inquireQ();
                           });
                         }
@@ -444,18 +445,18 @@ const inquireQ = () => {
 
 
 
-// //the end
-// cfonts.say("Hello, I love A+'s", {
-//     font: "chrome",
-//     align: "center",
-//     colors: ["green", "magenta", "blue"],
-//     background: "transparent",
-//     letterSpacing: 1,
-//     lineHeight: 1,
-//     space: true,
-//     maxLength: "0",
-//     gradient: true,
-//     independentGradient: false,
-//     transitionGradient: false,
-//     env: "node",
-// });
+//the end
+cfonts.say("Track Your Employee's!", {
+  font: "pallet",
+  align: "left",
+  colors: ["yellow", "magenta"],
+  background: "transparent",
+  letterSpacing: 1,
+  lineHeight: 1,
+  space: true,
+  maxLength: "0",
+  gradient: true,
+  independentGradient: false,
+  transitionGradient: false,
+  env: "node",
+});
