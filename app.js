@@ -20,6 +20,7 @@ const inquireQ = () => {
           type: "list",
           message: "What would you like to do?",
           choices: [
+            // "View Entire Company",
             "Add Department",
             "View Departments",
             "Delete Department",
@@ -32,6 +33,7 @@ const inquireQ = () => {
             "Delete Employee",
             "View Employees by Manager",
             "Update Employee Managers",
+            "View Budget by Department",
             "Finish",
           ],
           name: "userFunction",
@@ -41,6 +43,14 @@ const inquireQ = () => {
         const userFunction = res.userFunction;
         //switch case for all options
         switch (userFunction) {
+          // case "View Entire Company":
+          //   connection.query("SELECT roles.title FROM roles INNER JOIN employees ON department_id=role_id;", function (err, res) {
+          //     if (err) throw err;
+          //     console.log(res);
+          //     res.length > 0 && printTable(res);
+          //     inquireQ();
+          //   });
+          //   break;
           case "Add Department":                  
                       //departments are displayed then they can add one.
             ask.prompt({
@@ -60,7 +70,7 @@ const inquireQ = () => {
                                 "SELECT * FROM departments",
                                 function (err, res) {
                                   if (err) throw err;
-                                  res.length > 0 && console.table(res);
+                                  res.length > 0 && printTable(res);
                                   inquireQ();
                                 }
                               );
@@ -79,10 +89,9 @@ const inquireQ = () => {
           break;
 
           case "Add Role":
-                  //view the roles
+                  //view the departments
                   connection.query("SELECT * FROM departments", function (err, departments) {
                     if (err) throw err;
-                      // res.length > 0 && console.table(departments);
                     ask.prompt([
                     {
                       type: "input",
@@ -105,7 +114,7 @@ const inquireQ = () => {
                       type: "list",
                       massage: "Please select the department for this role:",
                       choices: departments.map(department => ({ value: department.id, name: department.name })),
-                      name: "department_id",
+                      name: "department_id"
 
                     }]).then((answer) => {
                         connection.query(
@@ -190,11 +199,9 @@ const inquireQ = () => {
                                     role_id: answer.role_id,
                                     manager_id: answer.manager_id
                                 },
-                                function (err) {
+                                function (err, res) {
                                     if (err) throw err;
                                   console.log("Successfully added employee!");
-                                  printTable(res);
-                                    //view the roles
                                     inquireQ();
                                 }
                             );
@@ -304,26 +311,34 @@ const inquireQ = () => {
             break;
 
           case "View Employees by Manager":
-            connection.query("SELECT * FROM employees WHERE ?", {
-
-            })
-            ask.prompt(
-              {
-                type: "list",
-                message: "Please select the manager of whom you wish to view their employees:",
-                choices: employees.map(employee => ({ value: employee.id, name: employee.last_name })),
-                name: "viewMngrsEmps",
-              }
-            ).then(answer => {
-              connection.query("SELECT * FROM employees WHERE ?", [{
-                manager_id: answer.viewMngrsEmps
-              }], function (err, res) {
+            // connection.query("SELECT * FROM roles", function (err, res) {
+            //   if (err) throw err;
+            //   connection.query("SELECT * FROM employees", function (err, employees) {
+            //     if (err) throw err;
+              connection.query("SELECT employees.id, employees.first_name, employees.last_name, roles.title FROM employees LEFT JOIN roles ON employees.role_id = roles.title", function (err, employees) {
                   if (err) throw err;
-                  printTable(res);
-                console.log("Employee's manager has been updated!");
-                inquireQ();
-              });
-            });
+                  printTable(employees);
+                  ask.prompt(
+                    {
+                      type: "list",
+                      message: "Please select the manager of whom you wish to view their employees:",
+                      choices: employees.map(employee => ({ value: employee.id, name: employee.last_name })),
+                      name: "viewMngrsEmps",
+                    }
+                  ).then(answer => {
+                    connection.query("SELECT * FROM employees WHERE ?", [{
+                      manager_id: answer.viewMngrsEmps
+                    }], function (err, res) {
+                      if (err) throw err;
+                      printTable(res);
+                      console.log("Employee's manager has been updated!");
+                      inquireQ();
+                    });
+                  });
+                });
+            //   });
+            // });
+ 
             break;
 
             case "Delete Department":
@@ -333,14 +348,14 @@ const inquireQ = () => {
                 ) {
                   if (err) throw err;
                   ask
-                    .prompt([
+                    .prompt(
                       {
-                        type: "input",
+                        type: "list",
                         message: "Please select the department you wish to delete:",
                         choices: departments.map(department => ({ value: department.id, name: department.name })),
                         name: "deleteDept"
-                      },
-                    ])
+                      }
+                    )
                     .then((answer) => {
                       connection.query(
                         "DELETE FROM departments WHERE id=? ",
@@ -397,12 +412,12 @@ const inquireQ = () => {
             break;
 
             case "Delete Employee":
-                connection.query("SELECT * FROM employees ", function (err, employees) {
+                connection.query("SELECT * FROM employees", function (err, employees) {
                   if (err) throw err;
                   ask
                     .prompt([
                       {
-                        type: "input",
+                        type: "list",
                         message: "Please select the employee you wish to delete:",
                         choices: employees.map(employee => ({ value: employee.id, name: employee.last_name })),
                         name: "deleteEmp"
@@ -426,6 +441,10 @@ const inquireQ = () => {
                       );
                     });
                 });
+            break;
+          
+          case "View Budget by Department":
+
             break;
 
           case "Finish":
