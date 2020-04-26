@@ -315,7 +315,7 @@ const inquireQ = () => {
             //   if (err) throw err;
             //   connection.query("SELECT * FROM employees", function (err, employees) {
             //     if (err) throw err;
-              connection.query("SELECT employees.id, employees.first_name, employees.last_name, roles.title FROM employees LEFT JOIN roles ON employees.role_id = roles.title", function (err, employees) {
+              connection.query("SELECT employees.id, employees.first_name, employees.last_name, roles.title FROM employees LEFT JOIN roles ON employees.role_id = roles.id", function (err, employees) {
                   if (err) throw err;
                   printTable(employees);
                   ask.prompt(
@@ -323,7 +323,7 @@ const inquireQ = () => {
                       type: "list",
                       message: "Please select the manager of whom you wish to view their employees:",
                       choices: employees.map(employee => ({ value: employee.id, name: employee.last_name })),
-                      name: "viewMngrsEmps",
+                      name: "viewMngrsEmps"
                     }
                   ).then(answer => {
                     connection.query("SELECT * FROM employees WHERE ?", [{
@@ -444,6 +444,21 @@ const inquireQ = () => {
             break;
           
           case "View Budget by Department":
+            connection.query("SELECT departments.id, roles.id AS role_id, roles.salary, employees.last_name, departments.name FROM department INNER JOIN roles ON roles.department_id = departments.id INNER JOIN employees ON employees.role_id = roles.id", function (err, table) {
+              ask.prompt({
+                type: "list",
+                message: "Please select the department's budtget you wish to view",
+                choices: table.map(department => ({ value: department.id, name: department.name })),
+                name: "budget"
+              }).then(answer => {
+                connection.query("SELECT departments.id, roles.id AS role_id, roles.salary, employees.last_name FROM department INNER JOIN roles ON roles.department_id = departments.id INNER JOIN employees ON employees.role_id = roles.id WHERE ?", [{
+                  departments.id: answer.budget
+                }], function (err, departments) {
+                  printTable(departments);
+                  // forEach()
+                });
+              });
+            });
 
             break;
 
