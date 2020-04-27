@@ -3,7 +3,7 @@ const validator = require('validator');
 const cfonts = require('cfonts');
 const path = require("path");
 const fs = require("fs");
-const connection = require('./connect');
+const connection = require('./db/connect');
 const { printTable } = require("console-table-printer");
 
 connection.connect(function (err) {
