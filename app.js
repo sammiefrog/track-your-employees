@@ -97,7 +97,7 @@ const inquireQ = () => {
                   type: "input",
                   message: "Please enter the role you wish to add:",
                   name: "title"
-                      
+                
                 },
                 {
                   type: "input",
@@ -450,15 +450,18 @@ const inquireQ = () => {
             connection.query("SELECT * FROM departments", function (err, table) {
               ask.prompt({
                 type: "list",
-                message: "Please select the department's budtget you wish to view",
+                message: "Please select the department's budget you wish to view",
                 choices: table.map(department => ({ value: department.id, name: department.name })),
                 name: "budget"
               }).then(answer => {
-                connection.query("SELECT departments.id, roles.id AS role_id, roles.salary, employees.last_name FROM department INNER JOIN roles ON roles.department_id = departments.id INNER JOIN employees ON employees.role_id = roles.id WHERE ?", [{
-                  id: answer.budget
-                }], function (err, departments) {
-                  printTable(departments);
-                  // forEach()
+                connection.query("SELECT departments.id, roles.id AS role_id, roles.salary, employees.last_name FROM departments INNER JOIN roles ON roles.department_id = departments.id INNER JOIN employees ON employees.role_id = roles.id WHERE departments.id=?", [
+                  answer.budget
+                ], function (err, departments) {
+                    printTable(departments);
+
+                    var salary = departments.reduce((sum, row) =>  sum + row.salary , 0); 
+
+                    console.log(`This departments budget is ${salary}`);
                 });
               });
             });
@@ -497,3 +500,5 @@ cfonts.say("Track Your Employee's!", {
   transitionGradient: false,
   env: "node",
 });
+
+module.exports = inquireQ;
