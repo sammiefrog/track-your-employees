@@ -1,11 +1,17 @@
+//requiring files
+const Db = require('./db/database');
+const connection = require('./db/connect');
+//importing packages
 const ask = require('inquirer');
 const validator = require('validator');
 const cfonts = require('cfonts');
-const connection = require('./db/connect');
 const { printTable } = require("console-table-printer");
 const util = require('util');
+//path to controller
+
 //promisifying the connection for async await
 connection.query = util.promisify(connection.query);
+
 //connection
 connection.connect(function (err) {
   if (err) throw err;
@@ -20,6 +26,7 @@ const inquireQ = () => {
       type: "list",
       message: "What would you like to do?",
       choices: [
+        "Finish",
         "Add Department",
         "View Departments",
         "Delete Department",
@@ -32,8 +39,7 @@ const inquireQ = () => {
         "Delete Employee",
         "View Employees by Manager",
         "Update Employee Managers",
-        "View Budget by Department",
-        "Finish",
+        "View Budget by Department"
       ],
       name: "userFunction",
     },
@@ -45,36 +51,28 @@ const inquireQ = () => {
       //switch case for all options
       switch (userFunction) {
 
-        case "Finish":
-          connection.end();
-          break;
-
         case "Add Department":
           const { department } = await ask.prompt({
             type: "input",
             message: "Please enter the department you wish to add:",
             name: "department"
           });
-          await connection.query(
-            "INSERT INTO departments SET ?",
-            {
-              name: department,
-            });
+          await Db.addDepartment(department);
           console.log("Successfully added department!");
-          const showDpt = await connection.query("SELECT * FROM departments");
+          const showDpt = await Db.getDepartments();
           printTable(showDpt);
           inquireQ();
 
           break;
 
         case "View Departments":
-          const viewDept = await connection.query("SELECT * FROM departments");
+          const viewDept = await Db.getDepartments();
           printTable(viewDept);
           inquireQ();
           break;
 
         case "Add Role":
-          const dept1 = await connection.query("SELECT * FROM departments");
+          const dept1 = await Db.getDepartments();
           const addRole = await ask.prompt([
             {
               type: "input",
@@ -100,29 +98,22 @@ const inquireQ = () => {
               name: "department_id"
 
             }]);
-          await connection.query("INSERT INTO roles SET ?",
-            {
-              title: addRole.title,
-              salary: addRole.salary,
-              department_id: addRole.department_id,
-            });
+          await Db.addRole(addRole);
           console.log("Successfully added role!");
-          const roleAdded = await connection.query("SELECT roles.id, roles.title, departments.name AS department FROM roles INNER JOIN departments ON roles.department_id = departments.id");
+          const roleAdded = await Db.getRolesWithDepts();;
           printTable(roleAdded);
           inquireQ();
           break;
 
         case "View Roles":
-          const viewRoles = await connection.query("SELECT roles.id, roles.title, roles.salary, departments.name AS department FROM roles INNER JOIN departments ON roles.department_id = departments.id");
+          const viewRoles = await Db.getRolesWithDepts();
           printTable(viewRoles);
           inquireQ();
           break;
 
         case "Add Employee":
-          //view employees before you add one.
-          const roles = await connection.query("SELECT * FROM roles");
-          const employees = await connection.query("SELECT * FROM employees");
-          //ask the questions to add after displaying current ones, for selecting manager
+          const roles = await Db.getRoles();
+          const employees = await Db.getEmployees();
           const addEmp = await ask.prompt([
             {
               type: "input",
@@ -159,15 +150,9 @@ const inquireQ = () => {
               name: "manager_id"
             }
           ]);
-          await connection.query("INSERT INTO employees SET ?",
-            {
-              first_name: addEmp.first_name,
-              last_name: addEmp.last_name,
-              role_id: addEmp.role_id,
-              manager_id: addEmp.manager_id
-            });
+          await Db.addEmployee(addEmp);
           console.log("Successfully added employee!");
-          const viewRes = await connection.query("SELECT employees.id, employees.first_name, employees.last_name, roles.title, manager_id FROM employees INNER JOIN roles ON employees.role_id = roles.id");
+          const viewRes = await Db.getEmpsWithRoles();
           printTable(viewRes);
           inquireQ();
           break;
@@ -180,8 +165,8 @@ const inquireQ = () => {
           break;
 
         case "Update Employee Roles":
-          const emps2 = await connection.query("SELECT * FROM employees");
-          const roles2 = await connection.query("SELECT * FROM roles");
+          const emps2 = await Db.getEmployees();
+          const roles2 = await Db.getRoles();
           const joinQ = await ask.prompt([
             {
               type: "list",
@@ -204,7 +189,7 @@ const inquireQ = () => {
           {
             id: joinQ.updateID
           }]);
-          const join1 = await connection.query("SELECT employees.id, employees.first_name, employees.last_name, roles.title FROM employees LEFT JOIN roles ON employees.role_id = roles.id");
+          const join1 = await Db.getEmpsWithRoles();;
           printTable(join1);
           console.log("Successfully updated!");
           inquireQ();
@@ -212,7 +197,7 @@ const inquireQ = () => {
           break;
 
         case "Update Employee Managers":
-          const joinEmps = await connection.query("SELECT employees.id, employees.first_name, employees.last_name, employees.manager_id, roles.title FROM employees LEFT JOIN roles ON employees.role_id = roles.id");
+          const joinEmps = await Db.getEmpsWithRoles();;
           printTable(joinEmps);
           const updateMngrs = await ask.prompt([
             {
@@ -248,7 +233,7 @@ const inquireQ = () => {
           break;
 
         case "View Employees by Manager":
-          const viewJoin = await connection.query("SELECT employees.id, employees.first_name, employees.last_name, roles.title FROM employees LEFT JOIN roles ON employees.role_id = roles.id");
+          const viewJoin = await Db.getEmpsWithRoles();;
           printTable(viewJoin);
           const { viewByMngr } = await ask.prompt(
             {
@@ -267,7 +252,7 @@ const inquireQ = () => {
           break;
 
         case "Delete Department":
-          const dept2 = await connection.query("SELECT * FROM departments ");
+          const dept2 = await Db.getDepartments();
           const { deleteDept } = await ask.prompt({
             type: "list",
             message: "Please select the department you wish to delete:",
@@ -276,14 +261,14 @@ const inquireQ = () => {
           });
           await connection.query("DELETE FROM departments WHERE id=? ", [deleteDept]);
 
-          const viewRemain = await connection.query("SELECT * FROM departments");
+          const viewRemain = await Db.getDepartments();
           printTable(viewRemain);
           inquireQ();
 
           break;
 
         case "Delete Role":
-          const role = await connection.query("SELECT * FROM roles ")
+          const role = await Db.getRoles();
           const { deleteRole } = await ask.prompt([
             {
               type: "list",
@@ -300,7 +285,7 @@ const inquireQ = () => {
           break;
 
         case "Delete Employee":
-          const empDel = await connection.query("SELECT * FROM employees");
+          const empDel = await getEmployees();
           const { deleteEmp } = await ask.prompt({
             type: "list",
             message: "Please select the employee you wish to delete:",
@@ -309,13 +294,13 @@ const inquireQ = () => {
           });
 
           await connection.query("DELETE FROM employees WHERE id=? ", [deleteEmp]);
-          const viewEmpsLeft = await connection.query("SELECT * FROM employees")
+          const viewEmpsLeft = await Db.getEmployees();
           printTable(viewEmpsLeft);
           inquireQ();
           break;
 
         case "View Budget by Department":
-          const budgetDept = await connection.query("SELECT * FROM departments");
+          const budgetDept = await Db.getDepartments();
           const { budget } = await ask.prompt({
             type: "list",
             message: "Please select the department's budget you wish to view",
@@ -329,6 +314,10 @@ const inquireQ = () => {
           console.log(`This departments budget is ${salary}`);
           inquireQ();
 
+          break;
+        
+        case "Finish":
+          connection.end();
           break;
 
         default:

@@ -4,7 +4,7 @@
   
 ## Contributors
 sammiefrog
-    
+
 ## Table of Contents
 <li><a href="#description">Description</a></li>  
 <li><a href="#installation">Installation</a></li> 
