@@ -27,7 +27,7 @@ Fork this repo, npm i, drop the schema and seeds into MySql, run 'node app', beg
 Use this app to manage employees, roles, and departments within a company.
 
 <h2 id = "screenshots">Screenshots</h2>
-
+<img src="/images/mainmenu.png" alt="pic of menu">
 
 <h2 id= "contact">Contact</h2>
 <li>Name: Sammantha Sasenick</li> 
@@ -37,4 +37,4 @@ Use this app to manage employees, roles, and departments within a company.
 <li>LinkedIn: www.linkedin.com/in/sammantha-sasenick412</li> 
     
 <h2 id= "tests">Tests</h2>
- 
+<img src="/images/example.gif" alt="gif of working app">
