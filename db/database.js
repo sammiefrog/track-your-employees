@@ -20,6 +20,14 @@ class db {
             });
     }
 
+    deleteDepartment(deleteDept) {
+        return this.connection.query("DELETE FROM departments WHERE id=? ", [deleteDept]);
+    }
+
+    viewDeptBudget(budget) {
+        return this.connection.query("SELECT departments.id, roles.id AS role_id, roles.salary, employees.last_name FROM departments INNER JOIN roles ON roles.department_id = departments.id INNER JOIN employees ON employees.role_id = roles.id WHERE departments.id=?", [budget])
+    }
+
     getRoles() {
         return this.connection.query("SELECT * FROM roles");
     }
@@ -35,6 +43,10 @@ class db {
                 salary: addRole.salary,
                 department_id: addRole.department_id,
             });
+    }
+
+    deleteRole(deleteRole) {
+        return this.connection.query("DELETE FROM roles WHERE id=? ", [deleteRole]);
     }
 
     getEmployees() {
@@ -54,7 +66,34 @@ class db {
                 manager_id: addEmp.manager_id
             });
     }
-    
+
+    viewEmpsByMngr(viewByMngr) {
+        return this.connection.query("SELECT * FROM employees WHERE ?", [{
+            manager_id: viewByMngr
+        }]);
+    }
+    updateEmpMngrs(updateMngrs) {
+        return this.connection.query("UPDATE employees SET ? WHERE ?",
+            [{
+                manager_id: updateMngrs.updateMngrID,
+            },
+            {
+                id: updateMngrs.updateMngr
+            },
+            ]);
+    }
+    updateEmpRoles(joinQ) {
+        return this.connection.query("UPDATE employees SET ? WHERE ?", [{
+            role_id: joinQ.updateRoleID
+        },
+        {
+            id: joinQ.updateID
+        }]);
+    }
+
+    deleteEmployee(deleteEmp) {
+        return this.connection.query("DELETE FROM employees WHERE id=? ", [deleteEmp]);
+    }
 
 
 }

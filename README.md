@@ -18,7 +18,11 @@ sammiefrog
 This is a command-line application to manage the employees in a company. It makes it easy to add departments, roles, and employees, while also letting you view existing ones and update or delete them, and see the budgets by department.
   
 <h2 id= "installation">Installation</h2>
-Fork this repo, npm i, drop the schema and seeds into MySql, run 'node app', begin!
+Fork this repo
+'npm i' in the terminal 
+Drop the schema and seeds into MySql Workbench
+Add your password into the connection file
+run 'node app' &&  begin!
     
 <h2 id= "technology">Technology Stack</h2>
  Node.Js, JavaScript, GIT, GitHub, Command- Line

@@ -158,7 +158,7 @@ const inquireQ = () => {
           break;
 
         case "View Employees":
-          const viewEmps = await connection.query("SELECT employees.id, employees.first_name, employees.last_name, roles.title, manager_id FROM employees INNER JOIN roles ON employees.role_id = roles.id");
+          const viewEmps = await Db.getEmpsWithRoles();
 
           printTable(viewEmps);
           inquireQ();
@@ -183,12 +183,7 @@ const inquireQ = () => {
 
             }
           ])
-          await connection.query("UPDATE employees SET ? WHERE ?", [{
-            role_id: joinQ.updateRoleID
-          },
-          {
-            id: joinQ.updateID
-          }]);
+          await updateEmpRoles(joinQ);
           const join1 = await Db.getEmpsWithRoles();;
           printTable(join1);
           console.log("Successfully updated!");
@@ -218,15 +213,7 @@ const inquireQ = () => {
               },
             },
           ]);
-
-          await connection.query("UPDATE employees SET ? WHERE ?",
-            [{
-              manager_id: updateMngrs.updateMngrID,
-            },
-            {
-              id: updateMngrs.updateMngr
-            },
-            ]);
+          await Db.updateEmpMngrs(updateMngrs);
           console.log("Employee's manager has been updated!");
           inquireQ();
 
@@ -239,13 +226,11 @@ const inquireQ = () => {
             {
               type: "list",
               message: "Please select the manager of whom you wish to view their employees:",
-              choices: employees.map(employee => ({ value: employee.id, name: employee.last_name })),
+              choices: viewJoin.map(employee => ({ value: employee.id, name: employee.last_name })),
               name: "viewMngrsEmps"
             }
           );
-          const view = await connection.query("SELECT * FROM employees WHERE ?", [{
-            manager_id: viewByMngr
-          }]);
+          const view = await Db.viewEmpsByMngr(viewByMngr);
           printTable(view);
           inquireQ();
 
@@ -259,7 +244,7 @@ const inquireQ = () => {
             choices: dept2.map(department => ({ value: department.id, name: department.name })),
             name: "deleteDept"
           });
-          await connection.query("DELETE FROM departments WHERE id=? ", [deleteDept]);
+          await Db.deleteDepartment(deleteDept);
 
           const viewRemain = await Db.getDepartments();
           printTable(viewRemain);
@@ -278,7 +263,7 @@ const inquireQ = () => {
             }
           ]);
 
-          await connection.query("DELETE FROM roles WHERE id=? ", [deleteRole]);
+          await Db.deleteRole(deleteRole);
           const viewChange = await connection.query("SELECT * FROM roles");
           printTable(viewChange);
           inquireQ();
@@ -293,7 +278,7 @@ const inquireQ = () => {
             name: "deleteEmp"
           });
 
-          await connection.query("DELETE FROM employees WHERE id=? ", [deleteEmp]);
+          await Db.deleteEmployee(deleteEmp);
           const viewEmpsLeft = await Db.getEmployees();
           printTable(viewEmpsLeft);
           inquireQ();
@@ -307,7 +292,7 @@ const inquireQ = () => {
             choices: budgetDept.map(department => ({ value: department.id, name: department.name })),
             name: "budget"
           });
-          const budgetView = await connection.query("SELECT departments.id, roles.id AS role_id, roles.salary, employees.last_name FROM departments INNER JOIN roles ON roles.department_id = departments.id INNER JOIN employees ON employees.role_id = roles.id WHERE departments.id=?", [budget]);
+          const budgetView = await Db.viewDeptBudget(budget);
 
           printTable(budgetView);
           let salary = budgetView.reduce((sum, row) => sum + row.salary, 0);
