@@ -1,4 +1,3 @@
-const app = require('../app.js');
 const connection = require('./connect');
 
     
@@ -67,11 +66,12 @@ class db {
             });
     }
 
-    viewEmpsByMngr(viewByMngr) {
+    viewEmpsByMngr(viewMngrsEmps) {
         return this.connection.query("SELECT * FROM employees WHERE ?", [{
-            manager_id: viewByMngr
+            manager_id: viewMngrsEmps
         }]);
     }
+
     updateEmpMngrs(updateMngrs) {
         return this.connection.query("UPDATE employees SET ? WHERE ?",
             [{
@@ -79,9 +79,10 @@ class db {
             },
             {
                 id: updateMngrs.updateMngr
-            },
+            }
             ]);
     }
+
     updateEmpRoles(joinQ) {
         return this.connection.query("UPDATE employees SET ? WHERE ?", [{
             role_id: joinQ.updateRoleID

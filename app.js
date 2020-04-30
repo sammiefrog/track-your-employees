@@ -183,7 +183,7 @@ const inquireQ = () => {
 
             }
           ])
-          await updateEmpRoles(joinQ);
+          await Db.updateEmpRoles(joinQ);
           const join1 = await Db.getEmpsWithRoles();;
           printTable(join1);
           console.log("Successfully updated!");
@@ -216,13 +216,12 @@ const inquireQ = () => {
           await Db.updateEmpMngrs(updateMngrs);
           console.log("Employee's manager has been updated!");
           inquireQ();
-
           break;
 
         case "View Employees by Manager":
-          const viewJoin = await Db.getEmpsWithRoles();;
+          const viewJoin = await Db.getEmpsWithRoles();
           printTable(viewJoin);
-          const { viewByMngr } = await ask.prompt(
+          const { viewMngrsEmps } = await ask.prompt(
             {
               type: "list",
               message: "Please select the manager of whom you wish to view their employees:",
@@ -230,8 +229,12 @@ const inquireQ = () => {
               name: "viewMngrsEmps"
             }
           );
-          const view = await Db.viewEmpsByMngr(viewByMngr);
-          printTable(view);
+          const view = await Db.viewEmpsByMngr(viewMngrsEmps);
+          if (view.length === 0 ) {
+            console.log("No employees under this person!");
+          } else {
+            printTable(view);
+          }
           inquireQ();
 
           break;
