@@ -114,28 +114,22 @@ const inquireQ = () => {
         case "Add Employee":
           const roles = await Db.getRoles();
           const employees = await Db.getEmployees();
+          const employeeChoices = employees.map((employee) => ({
+            value: employee.id,
+            name: employee.last_name,
+          }));
+          employeeChoices.push({ value: null, name: "None" });
+
           const addEmp = await ask.prompt([
             {
               type: "input",
               message: "Please enter employee's first name:",
-              name: "first_name",
-              validate: (value) => {
-                if (validator.isAlpha(value)) {
-                  return true;
-                }
-                return "Please enter valid first name (a-z)";
-              }
+              name: "first_name"
             },
             {
               type: "input",
               message: "Please enter employee's last name:",
-              name: "last_name",
-              validate: (value) => {
-                if (validator.isAlpha(value)) {
-                  return true;
-                }
-                return "Please enter valid last name (a-z)";
-              }
+              name: "last_name"
             },
             {
               type: "list",
@@ -146,7 +140,7 @@ const inquireQ = () => {
             {
               type: "list",
               message: "Please select the manager for this employee:",
-              choices: employees.map(employee => ({ value: employee.id, name: employee.last_name })),
+              choices: employeeChoices,
               name: "manager_id"
             }
           ]);
