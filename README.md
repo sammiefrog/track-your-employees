@@ -25,7 +25,7 @@ Add your password into the connection file
 run 'node app' &&  begin!
     
 <h2 id= "technology">Technology Stack</h2>
- Node.Js, JavaScript, GIT, GitHub, Command- Line
+ Node.Js, JavaScript, GIT, GitHub, Command- Line, SQL, MySql
   
 <h2 id= "usage">Usage</h2>
 Use this app to manage employees, roles, and departments within a company.
